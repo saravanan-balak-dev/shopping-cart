@@ -5,44 +5,30 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("CartItem")
 class CartItemTest {
 
     @Test
-    @DisplayName("rejects null or blank product name")
-    void rejectsBlankProductName() {
-        assertThrows(IllegalArgumentException.class,
-                () -> new CartItem("", 1, BigDecimal.ONE));
-        assertThrows(IllegalArgumentException.class,
-                () -> new CartItem(null, 1, BigDecimal.ONE));
-    }
-
-    @Test
-    @DisplayName("rejects non-positive quantity")
-    void rejectsNonPositiveQuantity() {
-        assertThrows(IllegalArgumentException.class,
-                () -> new CartItem("cornflakes", 0, BigDecimal.ONE));
-        assertThrows(IllegalArgumentException.class,
-                () -> new CartItem("cornflakes", -1, BigDecimal.ONE));
-    }
-
-    @Test
-    @DisplayName("rejects negative unit price")
-    void rejectsNegativeUnitPrice() {
-        assertThrows(IllegalArgumentException.class,
-                () -> new CartItem("cornflakes", 1, new BigDecimal("-1")));
-        assertThrows(IllegalArgumentException.class,
-                () -> new CartItem("cornflakes", 1, null));
-    }
-
-    @Test
-    @DisplayName("compute line total by quantity * unitPrice")
+    @DisplayName("given cart item, line total is quantity multiplied by unit price")
     void lineTotalMultipliesQuantityByUnitPrice() {
         CartItem item = new CartItem("cornflakes", 3, new BigDecimal("2.52"));
-        assertEquals(new BigDecimal("7.56"), item.lineTotal());
+        assertThat(item.lineTotal()).isEqualTo(new BigDecimal("7.56"));
     }
+
+     @Test
+     @DisplayName("given cart item with zero quantity, line total is zero")
+     void lineTotalIsZeroForZeroQuantity() {
+         CartItem item = new CartItem("cornflakes", 0, new BigDecimal("2.52"));
+         assertThat(item.lineTotal()).isEqualTo(new BigDecimal("0.00"));
+     }
+
+     @Test
+     @DisplayName("given cart item with zero unit price, line total is zero")
+     void lineTotalIsZeroForZeroUnitPrice() {
+         CartItem item = new CartItem("cornflakes", 3, BigDecimal.ZERO);
+         assertThat(item.lineTotal()).isEqualTo(BigDecimal.ZERO);
+     }
 
 }

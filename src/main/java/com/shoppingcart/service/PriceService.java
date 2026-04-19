@@ -14,6 +14,6 @@ public interface PriceService {
      * @param productName the product identifier (e.g. "cornflakes")
      * @return the unit price
      */
-    BigDecimal getUnitPrice(String productName);
+    BigDecimal getPrice(String productName);
 
 }

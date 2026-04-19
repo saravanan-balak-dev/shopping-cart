@@ -10,20 +10,8 @@ import java.math.BigDecimal;
  */
 public record CartItem(String productName, int quantity, BigDecimal unitPrice) {
 
-    public CartItem {
-        if (productName == null || productName.isBlank()) {
-            throw new IllegalArgumentException("productName must not be blank");
-        }
-        if (quantity <= 0) {
-            throw new IllegalArgumentException("quantity must be positive");
-        }
-        if (unitPrice == null || unitPrice.signum() < 0) {
-            throw new IllegalArgumentException("unitPrice must be non-negative");
-        }
-    }
-
     //The unrounded line total (quantity × unitPrice)
     public BigDecimal lineTotal() {
-        return BigDecimal.valueOf(quantity).multiply(unitPrice);
+        return unitPrice.multiply(new BigDecimal(quantity));
     }
 }

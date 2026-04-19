@@ -2,6 +2,7 @@ package com.shoppingcart.service;
 
 import com.shoppingcart.model.CartItem;
 import com.shoppingcart.model.CartState;
+import com.shoppingcart.util.CartInputValidator;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -35,23 +36,16 @@ public class ShoppingCartService {
         this.priceService = priceService;
     }
 
+    /**
+     * Add {@code quantity} of {@code productName} to the cart.
+     * If the product is already in the cart, the quantities are summed.
+     * The unit price is fetched from the {@link PriceService} on every add call
+     */
     public void add(String productName, int quantity) {
-        if (productName == null || productName.isBlank()) {
-            throw new IllegalArgumentException("product name must not be blank");
-        }
-        if (quantity <= 0) {
-            throw new IllegalArgumentException("quantity must be positive, got " + quantity);
-        }
-
-        BigDecimal unitPrice = priceService.getUnitPrice(productName);
-
-        itemsByProductName.merge(
-                productName,
-                new CartItem(productName, quantity, unitPrice),
-                (existing, incoming) -> new CartItem(
-                        existing.productName(),
-                        existing.quantity() + incoming.quantity(),
-                        incoming.unitPrice()));
+        validateInput(productName, quantity);
+        BigDecimal unitPrice = priceService.getPrice(productName);
+        CartItem incoming = new CartItem(productName, quantity, unitPrice);
+        itemsByProductName.merge(productName, incoming, this::mergeQuantities);
     }
 
     /** @return an unmodifiable view of the items in insertion order. */
@@ -70,9 +64,18 @@ public class ShoppingCartService {
 
         BigDecimal subtotal = round(rawSubtotal);
         BigDecimal tax = round(rawSubtotal.multiply(TAX_RATE));
-        BigDecimal total = round(subtotal.add(tax));
+        BigDecimal total = subtotal.add(tax);
 
         return new CartState(subtotal, tax, total);
+    }
+
+    private void validateInput(String productName, int quantity) {
+        CartInputValidator.validateProductName(productName);
+        CartInputValidator.validateQuantity(quantity);
+    }
+
+    private CartItem mergeQuantities(CartItem existing, CartItem incoming) {
+        return new CartItem(existing.productName(), existing.quantity() + incoming.quantity(), incoming.unitPrice());
     }
 
     private static BigDecimal round(BigDecimal value) {
