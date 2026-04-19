@@ -23,6 +23,7 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter:${junitVersion}"
     testImplementation "org.mockito:mockito-core:${mockitoVersion}"
     testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
+    testImplementation "org.assertj:assertj-core:3.26.0"
 }
 
 tasks.named('test') {
